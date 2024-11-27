@@ -1,3 +1,9 @@
+const directions = [
+  [-1, -1], [-1, 0], [-1, 1],
+  [0, -1],           [0, 1],
+  [1, -1], [1, 0], [1, 1]
+];
+
 const isSymbol = (char) => char !== '.' && isNaN(parseInt(char));
 const isDigit = (char) => /\d/.test(char);
 
@@ -20,12 +26,6 @@ const getFullNumber = (row, col, matrix) => {
 };
 
 const hasAdjacentSymbol = (row, col, matrix) => {
-    const directions = [
-        [-1, -1], [-1, 0], [-1, 1],
-        [0, -1],           [0, 1],
-        [1, -1], [1, 0], [1, 1]
-    ];
-    
     for (const [dx, dy] of directions) {
         const newRow = row + dx;
         const newCol = col + dy;
@@ -37,6 +37,26 @@ const hasAdjacentSymbol = (row, col, matrix) => {
     }
     return false;
 };
+
+const findAdjacentNumbers = (row, col, matrix) => {
+  const adjacentNumbers = new Set();
+
+  for (const [dx, dy] of directions) {
+    const newRow = row + dy;
+    const newCol = col + dx;
+
+    if (newRow >= 0 
+        && newRow < matrix.length 
+        && newCol >= 0 
+        && newCol < matrix[0].length 
+        && isDigit(matrix[newRow][newCol])) {
+      adjacentNumbers.add(getFullNumber(newRow, newCol, matrix));
+    }
+  }
+
+  return [...adjacentNumbers];
+};
+
 
 const sumPartNumbers = (matrix) => {
   let total = 0;
@@ -66,4 +86,4 @@ const sumPartNumbers = (matrix) => {
   return total;
 };
 
-module.exports = { sumPartNumbers, hasAdjacentSymbol };
+module.exports = { sumPartNumbers, findAdjacentNumbers };
