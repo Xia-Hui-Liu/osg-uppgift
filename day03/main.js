@@ -9,7 +9,7 @@ const main = async() => {
         
         // Convert the input data into a 2D array (grid)
         const input = inputData.trim().split('\n').map(line => line.split(''));
-
+      
         const result1 = sumPartNumbers(input);
         const result2 = sumAllGearRatio(input);
 

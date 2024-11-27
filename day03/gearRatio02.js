@@ -1,4 +1,4 @@
-const { findAdjacentNumbers } = require('./gearRatio01');
+const { hasAdjacentSymbol } = require('./gearRatio01');
 
 const sumAllGearRatio = (input) => {
     let total = 0;
@@ -8,7 +8,7 @@ const sumAllGearRatio = (input) => {
             if (input[i][j] !== '*') {
                 continue;
             }
-            const adjacentNumbers = findAdjacentNumbers(input, i, j);
+            const adjacentNumbers = hasAdjacentSymbol(input, i, j);
 
             if (adjacentNumbers.length === 2) {
                 const [nb1, nb2] = adjacentNumbers;

@@ -1,87 +1,69 @@
+const isSymbol = (char) => char !== '.' && isNaN(parseInt(char));
+const isDigit = (char) => /\d/.test(char);
 
-// Directions for adjacency (horizontal, vertical, diagonal)
-const adjacentSpots = [
-    [-1, 0], [1, 0], [0, -1], [0, 1],  // Up, Down, Left, Right
-    [-1, -1], [-1, 1], [1, -1], [1, 1] // Diagonals
-];
+const getFullNumber = (row, col, matrix) => {
+    let numStr = '';
+    let start = col;
 
-// Function to check if a cell is adjacent to any symbol
-const findAdjacentSymbol = (input, i, j) => {
-    for (const [x, y] of adjacentSpots) {
-        const value = input[i + y]?.[j + x];
-        if (value !== undefined && value !== '.' && !Number.isInteger(+value)) {
-            return true;
+    // Find the start of the number by moving left
+    while (start >= 0 && isDigit(matrix[row][start])) {
+        start--;
+    }
+    start++;  // Move to the first digit
+
+    // Extract the full number moving right
+    while (start < matrix[row].length && isDigit(matrix[row][start])) {
+        numStr += matrix[row][start];
+        start++;
+    }
+    return parseInt(numStr);
+};
+
+const hasAdjacentSymbol = (row, col, matrix) => {
+    const directions = [
+        [-1, -1], [-1, 0], [-1, 1],
+        [0, -1],           [0, 1],
+        [1, -1], [1, 0], [1, 1]
+    ];
+    
+    for (const [dx, dy] of directions) {
+        const newRow = row + dx;
+        const newCol = col + dy;
+        if (newRow >= 0 && newRow < matrix.length && newCol >= 0 && newCol < matrix[0].length) {
+            if (isSymbol(matrix[newRow][newCol])) {
+                return true;
+            }
         }
     }
     return false;
-}
-
-// Function to extract a full number from a cell
-const findFullNumber = (input, i, j) => {
-    let nb = input[i][j];
-
-    // Check left
-    for (let k = j - 1; k >= 0; k--) {
-        if (Number.isInteger(+input[i][k])) {
-            nb = `${input[i][k]}${nb}`;
-        } else {
-            break;
-        }
-    }
-
-    // Check right
-    for (let k = j + 1; k < input[0].length; k++) {
-        if (Number.isInteger(+input[i][k])) {
-            nb += input[i][k];
-        } else {
-            break;
-        }
-    }
-
-    return nb;
-}
-
-// Find adjacent numbers around the current cell
-const findAdjacentNumbers = (input, i, j) => {
-    const adjacentNumbers = new Set();
-    for (const [x, y] of adjacentSpots) {
-        const value = input[i + y]?.[j + x];
-        if (Number.isInteger(+value)) {
-            adjacentNumbers.add(findFullNumber(input, i + y, j + x));
-        }
-    }
-    return Array.from(adjacentNumbers);
-}
-
-const sumPartNumbers = (input) => {
-    let total = 0;
-
-    for (let i = 0; i < input.length; i++) {
-        let currentNb = '';
-        let adjacent = false;
-
-        for (let j = 0; j < input[0].length + 1; j++) {
-            if (!Number.isInteger(+input[i][j])) {
-                if (adjacent) {
-                    total += +currentNb;
-                }
-
-                currentNb = '';
-                adjacent = false;
-                continue;
-            }
-
-            currentNb += input[i][j];
-
-            if (findAdjacentSymbol(input, i, j)) {
-                adjacent = true;
-            }
-        }
-    }
-
-    return total;
 };
 
-module.exports = { sumPartNumbers, findAdjacentNumbers};
+const sumPartNumbers = (matrix) => {
+  let total = 0;
+  const visited = new Set();
 
+  // Iterate through each cell of the matrix
+  for (let row = 0; row < matrix.length; row++) {
+    for (let col = 0; col < matrix[row].length; col++) {
+      // Check if the current cell contains a digit (number) and hasn't been visited
+      if (isDigit(matrix[row][col]) && !visited.has(`${row},${col}`)) {
+        // If the number is adjacent to a symbol, add its value to the total
+        if (hasAdjacentSymbol(row, col, matrix)) {
+          const number = getFullNumber(row, col, matrix);
+          total += number;
+          
+          // Mark all digits of this number as visited
+          let currentCol = col;
+          while (currentCol < matrix[row].length && isDigit(matrix[row][currentCol])) {
+            visited.add(`${row},${currentCol}`);
+            currentCol++;
+          }
+        }
+      }
+    }
+  }
+  
+  return total;
+};
 
+module.exports = { sumPartNumbers, hasAdjacentSymbol };
